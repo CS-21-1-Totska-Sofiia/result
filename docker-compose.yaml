@@ -1,0 +1,89 @@
+name: store-front
+version: '3.9'
+services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+    networks:
+      - shared-network
+  admin-panel-server:
+    container_name: admin-panel-server
+    build:
+      context: ./admin-panel/server
+    restart: unless-stopped
+    image: totska/admin-panel-server-image:latest
+    ports:
+      - 3000:3000
+    environment:
+      - AZURE_CONNECTION_STRING=AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;
+      - PORT=3000
+    networks:
+      - shared-network
+    depends_on:
+      - azurite
+      - image-converter
+  admin-panel-client:
+    container_name: admin-panel-client
+    build:
+      context: ./admin-panel/client
+    restart: unless-stopped
+    image: totska/admin-panel-client-image:latest
+    ports:
+      - 5000:5000
+    environment:
+      - VITE_ADMIN_PANEL_URL=http://localhost:3000
+    networks:
+      - shared-network
+    depends_on:
+      - admin-panel-server
+  store-front-server:
+    container_name: store-front-server
+    build:
+      context: ./store-front/server
+    restart: unless-stopped
+    image: totska/store-front-server-image:latest
+    ports:
+      - 3010:3010
+    environment:
+      - AZURE_CONNECTION_STRING=AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;
+      - PORT=3010
+    networks:
+      - shared-network
+    depends_on:
+      - azurite
+      - image-converter
+  store-front-client:
+    container_name: store-front-client
+    build:
+      context: ./store-front/client
+    restart: unless-stopped
+    image: totska/store-front-client-image:latest
+    ports:
+      - 5010:5010
+    environment:
+      - PORT=5010
+      - API_URL=http://localhost:3010
+    networks:
+      - shared-network
+    depends_on:
+      - store-front-server
+  image-converter:
+    container_name: image-converter
+    build:
+      context: ./image-converter
+    restart: unless-stopped
+    image: totska/image-converter-image:latest
+    environment:
+      - AZURE_CONNECTION_STRING=AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;
+      - QUEUE_NAME=convert-messages
+    networks:
+      - shared-network
+    depends_on:
+      - azurite
+
+networks:
+  shared-network:
+    driver: bridge

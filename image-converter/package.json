@@ -1,0 +1,29 @@
+{
+  "name": "image-converter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CS-21-1-Totska-Sofiia/image-converter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CS-21-1-Totska-Sofiia/image-converter/issues"
+  },
+  "homepage": "https://github.com/CS-21-1-Totska-Sofiia/image-converter#readme",
+  "dependencies": {
+    "@azure/data-tables": "^13.2.2",
+    "@azure/storage-blob": "^12.17.0",
+    "@azure/storage-queue": "^12.16.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "jimp": "^0.22.10"
+  }
+}
